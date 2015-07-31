@@ -1,5 +1,6 @@
 package omnidrive.algo;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
 import java.util.*;
@@ -15,9 +16,8 @@ public class TreeDiffTest {
     @Test
     public void testTwoEmptyTreesAreEqual() throws Exception {
         // Given empty trees
-        String name = "root";
-        SimpleTree left = new SimpleTree(name);
-        SimpleTree right = new SimpleTree(name);
+        SimpleTree left = new SimpleTree();
+        SimpleTree right = new SimpleTree();
 
         // When you diff them
         TreeDiff.DiffResult result = diff.run(left, right);
@@ -29,10 +29,9 @@ public class TreeDiffTest {
     @Test
     public void testTwoTreesWithOneItemAreEqual() throws Exception {
         // Given trees with one child with same name
-        String name = "root";
         String childName = "child";
-        SimpleTree left = new SimpleTree(name, new SimpleTree(childName));
-        SimpleTree right = new SimpleTree(name, new SimpleTree(childName));
+        SimpleTree left = new SimpleTree(ImmutableMap.of(childName, new SimpleTree()));
+        SimpleTree right = new SimpleTree(ImmutableMap.of(childName, new SimpleTree()));
 
         // When you diff them
         TreeDiff.DiffResult result = diff.run(left, right);
@@ -43,14 +42,11 @@ public class TreeDiffTest {
 
     @Test
     public void testLeftTreeIsEmptyAndRightTreeHasAChildNotEqual() throws Exception {
-        String name = "root";
-
         // Given the left tree is empty
-        SimpleTree left = new SimpleTree(name);
+        SimpleTree left = new SimpleTree();
 
         // And the right tree has one child
-        String childName = "child";
-        SimpleTree right = new SimpleTree(name, new SimpleTree(childName));
+        SimpleTree right = new SimpleTree(ImmutableMap.of("child", new SimpleTree()));
 
         // When you diff them
         TreeDiff.DiffResult result = diff.run(left, right);
@@ -61,15 +57,12 @@ public class TreeDiffTest {
 
     @Test
     public void testLeftTreeIsEmptyAndRightTreeHasAChildAdded() throws Exception {
-        String name = "root";
-
         // Given the left tree is empty
-        SimpleTree left = new SimpleTree(name);
+        SimpleTree left = new SimpleTree();
 
         // And the right tree has one child
-        String childName = "child";
-        SimpleTree child = new SimpleTree(childName);
-        SimpleTree right = new SimpleTree(name, child);
+        SimpleTree child = new SimpleTree();
+        SimpleTree right = new SimpleTree(ImmutableMap.of("child", child));
 
         // When you diff them
         TreeDiff.DiffResult<SimpleTree, SimpleTree> result = diff.run(left, right);
@@ -82,15 +75,12 @@ public class TreeDiffTest {
 
     @Test
     public void testRightTreeIsEmptyAndLeftTreeHasAChildAdded() throws Exception {
-        String name = "root";
-
         // Given the left tree has one child
-        String childName = "child";
-        SimpleTree child = new SimpleTree(childName);
-        SimpleTree left = new SimpleTree(name, child);
+        SimpleTree child = new SimpleTree();
+        SimpleTree left = new SimpleTree(ImmutableMap.of("child", child));
 
         // And the right tree is empty
-        SimpleTree right = new SimpleTree(name);
+        SimpleTree right = new SimpleTree();
 
         // When you diff them
         TreeDiff.DiffResult<SimpleTree, SimpleTree> result = diff.run(left, right);
@@ -103,16 +93,15 @@ public class TreeDiffTest {
 
     @Test
     public void testUseAComparatorToCompareNodesWithSameName() throws Exception {
-        String name = "root";
         String childName = "child";
 
         // Given the left tree has a child
-        SimpleTree leftChild = new SimpleTree(childName, 1);
-        SimpleTree left = new SimpleTree(name, leftChild);
+        SimpleTree leftChild = new SimpleTree(1);
+        SimpleTree left = new SimpleTree(ImmutableMap.of(childName, leftChild));
 
         // And the right tree has a different child with same name
-        SimpleTree rightChild = new SimpleTree(childName, 2);
-        SimpleTree right = new SimpleTree(name, rightChild);
+        SimpleTree rightChild = new SimpleTree(2);
+        SimpleTree right = new SimpleTree(ImmutableMap.of(childName, rightChild));
 
         // When you diff them
         TreeDiff.DiffResult<SimpleTree, SimpleTree> result = diff.run(left, right);
@@ -127,18 +116,17 @@ public class TreeDiffTest {
 
     @Test
     public void testRecursiveComparison() throws Exception {
-        String name = "root";
         String childName = "child";
         String grandchildName = "grandchild";
 
         // Given two trees with child with same name
-        SimpleTree leftGrandchild = new SimpleTree(grandchildName, 1);
-        SimpleTree leftChild = new SimpleTree(childName, leftGrandchild);
-        SimpleTree left = new SimpleTree(name, leftChild);
+        SimpleTree leftGrandchild = new SimpleTree(1);
+        SimpleTree leftChild = new SimpleTree(ImmutableMap.of(grandchildName, leftGrandchild));
+        SimpleTree left = new SimpleTree(ImmutableMap.of(childName, leftChild));
 
-        SimpleTree rightGrandchild = new SimpleTree(grandchildName, 2);
-        SimpleTree rightChild = new SimpleTree(childName, rightGrandchild);
-        SimpleTree right = new SimpleTree(name, rightChild);
+        SimpleTree rightGrandchild = new SimpleTree(2);
+        SimpleTree rightChild = new SimpleTree(ImmutableMap.of(grandchildName, rightGrandchild));
+        SimpleTree right = new SimpleTree(ImmutableMap.of(childName, rightChild));
 
         // When you diff them
         TreeDiff.DiffResult<SimpleTree, SimpleTree> result = diff.run(left, right);
@@ -152,29 +140,29 @@ public class TreeDiffTest {
 
     private class SimpleTree implements TreeNode<SimpleTree> {
 
-        public final String name;
-
         public final int value;
 
-        private final List<SimpleTree> children;
+        private final Map<String, SimpleTree> children;
 
-        private SimpleTree(String name, SimpleTree... children) {
-            this(name, 0, children);
+        public SimpleTree() {
+            this(Collections.<String, SimpleTree>emptyMap());
         }
 
-        private SimpleTree(String name, int value, SimpleTree... children) {
-            this.name = name;
+        public SimpleTree(int value) {
+            this(value, Collections.<String, SimpleTree>emptyMap());
+        }
+
+        public SimpleTree(Map<String, SimpleTree> children) {
+            this(0, children);
+        }
+
+        public SimpleTree(int value, Map<String, SimpleTree> children) {
             this.value = value;
-            this.children = Arrays.asList(children);
+            this.children = children;
         }
 
         @Override
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public Iterable<SimpleTree> getChildren() {
+        public Map<String, SimpleTree> getChildren() {
             return children;
         }
 

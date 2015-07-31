@@ -1,6 +1,7 @@
 package omnidrive.algo;
 
+import java.util.Map;
+
 public interface TreeNode<T extends TreeNode> {
-    String getName();
-    Iterable<T> getChildren();
+    Map<String, T> getChildren();
 }

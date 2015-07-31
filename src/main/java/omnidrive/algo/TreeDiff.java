@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 
 import java.util.*;
 
-public class TreeDiff<L extends TreeNode, R extends TreeNode> {
+public class TreeDiff<L extends TreeNode<L>, R extends TreeNode<R>> {
 
     final private Comparator<L, R> comparator;
 
@@ -19,8 +19,8 @@ public class TreeDiff<L extends TreeNode, R extends TreeNode> {
     }
 
     private void run(L left, R right, DiffResult<L, R> result) {
-        Map<String, L> leftChildren = childrenMap(left);
-        Map<String, R> rightChildren = childrenMap(right);
+        Map<String, L> leftChildren = left.getChildren();
+        Map<String, R> rightChildren = right.getChildren();
         for (String name : Sets.union(leftChildren.keySet(), rightChildren.keySet())) {
             boolean leftContains = leftChildren.containsKey(name);
             boolean rightContains = rightChildren.containsKey(name);
@@ -37,14 +37,6 @@ public class TreeDiff<L extends TreeNode, R extends TreeNode> {
                 result.addedRight.add(rightChildren.get(name));
             }
         }
-    }
-
-    private <T extends TreeNode<T>> Map<String, T> childrenMap(T tree) {
-        Map<String, T> childrenMap = new HashMap<>();
-        for (T child : tree.getChildren()) {
-            childrenMap.put(child.getName(), child);
-        }
-        return childrenMap;
     }
 
     public static class DiffResult<L, R> {
