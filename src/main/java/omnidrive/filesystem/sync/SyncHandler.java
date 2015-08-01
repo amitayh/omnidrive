@@ -1,5 +1,7 @@
 package omnidrive.filesystem.sync;
 
+import omnidrive.algo.TreeWalker;
+import omnidrive.algo.Visitor;
 import omnidrive.api.base.BaseAccount;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.exception.InvalidFileException;
@@ -35,6 +37,10 @@ public class SyncHandler implements Handler {
 
     private final ItemVisitor removeVisitor = new RemoveVisitor();
 
+//    private final TreeWalker<EntryNode> walker2;
+
+//    private final Visitor<EntryNode> removeVisitor2 = new RemoveVisitor2();
+
     public SyncHandler(Path root,
                        Manifest manifest,
                        ManifestSync manifestSync,
@@ -46,6 +52,8 @@ public class SyncHandler implements Handler {
         this.uploadStrategy = uploadStrategy;
         this.accountsManager = accountsManager;
         walker = new ManifestWalker(manifest);
+//        walker2 = new TreeWalker<>();
+
     }
 
     public String create(File file) throws Exception {
@@ -83,6 +91,8 @@ public class SyncHandler implements Handler {
         }
         // TODO delete from account!!
         walker.walk(item, removeVisitor);
+        // TODO use common tree walker from algo
+//        walker2.walk(EntryNode.from(manifest, item), removeVisitor2);
         parent.removeItem(item.getId());
         manifest.put(parent);
         manifestSync.upload();
@@ -160,4 +170,5 @@ public class SyncHandler implements Handler {
         }
 
     }
+
 }

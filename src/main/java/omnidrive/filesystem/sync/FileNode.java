@@ -14,13 +14,18 @@ public class FileNode implements TreeNode<FileNode> {
         this.file = file;
     }
 
+    public File getFile() {
+        return file;
+    }
+
     @Override
     public Map<String, FileNode> getChildren() {
         Map<String, FileNode> children = new HashMap<>();
         File[] files = file.listFiles();
-        assert files != null;
-        for (File child : files) {
-            children.put(child.getName(), new FileNode(child));
+        if (files != null) {
+            for (File child : files) {
+                children.put(child.getName(), new FileNode(child));
+            }
         }
         return children;
     }

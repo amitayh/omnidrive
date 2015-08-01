@@ -87,8 +87,7 @@ public class App {
     private long getAccountUpdateTime(BaseAccount account) throws Exception {
         File tempFile = File.createTempFile("manifest", "db");
         OutputStream outputStream = new FileOutputStream(tempFile);
-        // TODO use method from account
-        account.downloadFile("manifest", outputStream);
+        account.downloadManifestFile(outputStream);
         outputStream.close();
         DB db = MapDbUtils.createFileDb(tempFile);
         Manifest manifest = new MapDbManifest(db);
