@@ -20,7 +20,7 @@ public class TreeDiffTest {
         SimpleTree right = new SimpleTree();
 
         // When you diff them
-        TreeDiff.DiffResult result = diff.run(left, right);
+        TreeDiff.Result result = diff.run(left, right);
 
         // Then the result is equal
         assertTrue(result.areEqual());
@@ -34,7 +34,7 @@ public class TreeDiffTest {
         SimpleTree right = new SimpleTree(ImmutableMap.of(childName, new SimpleTree()));
 
         // When you diff them
-        TreeDiff.DiffResult result = diff.run(left, right);
+        TreeDiff.Result result = diff.run(left, right);
 
         // Then the result is equal
         assertTrue(result.areEqual());
@@ -49,7 +49,7 @@ public class TreeDiffTest {
         SimpleTree right = new SimpleTree(ImmutableMap.of("child", new SimpleTree()));
 
         // When you diff them
-        TreeDiff.DiffResult result = diff.run(left, right);
+        TreeDiff.Result result = diff.run(left, right);
 
         // Then the result is not equal
         assertFalse(result.areEqual());
@@ -65,7 +65,7 @@ public class TreeDiffTest {
         SimpleTree right = new SimpleTree(ImmutableMap.of("child", child));
 
         // When you diff them
-        TreeDiff.DiffResult<SimpleTree, SimpleTree> result = diff.run(left, right);
+        TreeDiff.Result<SimpleTree, SimpleTree> result = diff.run(left, right);
 
         // Then the result contains the left child
         Set<SimpleTree> addedRight = result.addedRight();
@@ -83,7 +83,7 @@ public class TreeDiffTest {
         SimpleTree right = new SimpleTree();
 
         // When you diff them
-        TreeDiff.DiffResult<SimpleTree, SimpleTree> result = diff.run(left, right);
+        TreeDiff.Result<SimpleTree, SimpleTree> result = diff.run(left, right);
 
         // Then you result contains the right child
         Set<SimpleTree> addedLeft = result.addedLeft();
@@ -104,7 +104,7 @@ public class TreeDiffTest {
         SimpleTree right = new SimpleTree(ImmutableMap.of(childName, rightChild));
 
         // When you diff them
-        TreeDiff.DiffResult<SimpleTree, SimpleTree> result = diff.run(left, right);
+        TreeDiff.Result<SimpleTree, SimpleTree> result = diff.run(left, right);
 
         // Then get the different nodes in the result
         Set<Pair<SimpleTree, SimpleTree>> modified = result.modified();
@@ -129,7 +129,7 @@ public class TreeDiffTest {
         SimpleTree right = new SimpleTree(ImmutableMap.of(childName, rightChild));
 
         // When you diff them
-        TreeDiff.DiffResult<SimpleTree, SimpleTree> result = diff.run(left, right);
+        TreeDiff.Result<SimpleTree, SimpleTree> result = diff.run(left, right);
 
         // Then you see the changes in the subtrees
         Set<Pair<SimpleTree, SimpleTree>> modified = result.modified();

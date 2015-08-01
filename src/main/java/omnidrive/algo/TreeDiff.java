@@ -12,13 +12,13 @@ public class TreeDiff<L extends TreeNode<L>, R extends TreeNode<R>> {
         this.comparator = comparator;
     }
 
-    public DiffResult<L, R> run(L left, R right) {
-        DiffResult<L, R> result = new DiffResult<>();
+    public Result<L, R> run(L left, R right) {
+        Result<L, R> result = new Result<>();
         run(left, right, result);
         return result;
     }
 
-    private void run(L left, R right, DiffResult<L, R> result) {
+    private void run(L left, R right, Result<L, R> result) {
         Map<String, L> leftChildren = left.getChildren();
         Map<String, R> rightChildren = right.getChildren();
         for (String name : Sets.union(leftChildren.keySet(), rightChildren.keySet())) {
@@ -39,7 +39,7 @@ public class TreeDiff<L extends TreeNode<L>, R extends TreeNode<R>> {
         }
     }
 
-    public static class DiffResult<L, R> {
+    public static class Result<L, R> {
 
         final private Set<L> addedLeft = new HashSet<>();
 
@@ -66,4 +66,5 @@ public class TreeDiff<L extends TreeNode<L>, R extends TreeNode<R>> {
         }
 
     }
+
 }
