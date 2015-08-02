@@ -6,9 +6,11 @@ import omnidrive.algo.TreeDiff;
 import omnidrive.api.base.AccountType;
 import omnidrive.api.base.BaseAccount;
 import omnidrive.api.managers.AccountsManager;
+import omnidrive.filesystem.exception.UnableToDeleteFileException;
 import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
+import omnidrive.filesystem.manifest.entry.Tree;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,6 +19,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Syncer {
+
+    public static final Path MANIFEST_ROOT_PATH = Paths.get("");
 
     final private Path rootPath;
 
@@ -31,24 +35,32 @@ public class Syncer {
         Comparator<FileNode, EntryNode> comparator = new SyncComparator();
         TreeDiff<FileNode, EntryNode> diff = new TreeDiff<>(comparator);
         FileNode left = new FileNode(rootPath.toFile());
-        EntryNode right2 = new EntryNode(manifest, Paths.get(""), manifest.getRoot());
-        TreeDiff.Result<FileNode, EntryNode> result = diff.run(left, right2);
+        EntryNode right = new EntryNode(manifest, MANIFEST_ROOT_PATH, manifest.getRoot());
+        TreeDiff.Result<FileNode, EntryNode> result = diff.run(left, right);
         syncDiffResult(result, manifest);
     }
 
     private void syncDiffResult(TreeDiff.Result<FileNode, EntryNode> result, Manifest manifest) throws Exception {
         long manifestUpdateTime = manifest.getUpdatedTime();
         for (FileNode fileNode : result.addedLeft()) {
+            // New entries in filesystem that don't exist in latest manifest
             File file = fileNode.getFile();
             if (file.lastModified() > manifestUpdateTime) {
                 upload(file);
+            } else {
+                delete(file);
             }
         }
         for (EntryNode entry : result.addedRight()) {
+            // New entries in manifest that don't exist in filesystem
             download(entry);
         }
         for (Pair<FileNode, EntryNode> pair : result.modified()) {
-            // TODO
+            // Entries that exist in both filesystem and manifest but were modified
+            File file = pair.getLeft().getFile();
+            if (file.lastModified() > manifestUpdateTime) {
+                download(pair.getRight());
+            }
         }
     }
 
@@ -57,15 +69,31 @@ public class Syncer {
         System.out.println(file);
     }
 
-    private void download(EntryNode entry) throws Exception {
-        if (entry.getType() == Entry.Type.BLOB) {
-            Blob blob = entry.as(Blob.class);
-            AccountType accountType = blob.getAccount();
-            BaseAccount account = accountsManager.getAccount(accountType);
-            File file = rootPath.resolve(entry.getPath()).toFile();
-            OutputStream outputStream = new FileOutputStream(file);
-            account.downloadFile(blob.getId(), outputStream);
+    private void delete(File file) throws Exception {
+        if (!file.delete()) {
+            throw new UnableToDeleteFileException(file);
         }
+    }
+
+    private void download(EntryNode entry) throws Exception {
+        Path path = entry.getPath();
+        if (entry.getType() == Entry.Type.BLOB) {
+            download(entry.as(Blob.class), path);
+        } else {
+            download(entry.as(Tree.class), path);
+        }
+    }
+
+    private void download(Blob blob, Path path) throws Exception {
+        AccountType accountType = blob.getAccount();
+        BaseAccount account = accountsManager.getAccount(accountType);
+        File file = rootPath.resolve(path).toFile();
+        OutputStream outputStream = new FileOutputStream(file);
+        account.downloadFile(blob.getId(), outputStream);
+    }
+
+    private void download(Tree tree, Path path) throws Exception {
+
     }
 
 //    private void download(Path path, TreeItem item) throws Exception {
