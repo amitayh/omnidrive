@@ -7,16 +7,16 @@ import java.nio.file.Path;
 
 public class UIManager {
 
-    private static final boolean StartHidden = true;
+    private static final boolean START_HIDDEN = true;
 
     public static void startGuiInBackground(Path omniDriveFolderPath) {
         setup();
-        AccountsFXML.show(StartHidden, omniDriveFolderPath);
+        AccountsFXML.show(START_HIDDEN, omniDriveFolderPath);
     }
 
-    public static void startGuiInFront(Path omniDriveFolderPath) {
+    public void startGuiInFront(Path omniDriveFolderPath) {
         setup();
-        AccountsFXML.show(!StartHidden, omniDriveFolderPath);
+        AccountsFXML.show(!START_HIDDEN, omniDriveFolderPath);
     }
 
     public static void showGui() {
@@ -44,4 +44,5 @@ public class UIManager {
         java.awt.Image image = new javax.swing.ImageIcon(iconURL).getImage();
         com.apple.eawt.Application.getApplication().setDockIconImage(image);
     }
+    
 }

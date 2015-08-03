@@ -54,4 +54,5 @@ public class EntryNode implements TreeNode<EntryNode> {
         }
         return children;
     }
+
 }
